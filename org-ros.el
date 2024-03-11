@@ -43,7 +43,7 @@
 (defcustom org-ros-secondary-screencapture-switch "-s"
   "Secondary screencapture software selection switch."
   :type 'string)
- 
+
 ;;;###autoload
 (defun org-ros ()
   "Screenshots an image to an org-file."
@@ -51,15 +51,22 @@
   (if buffer-file-name
       (progn
         (message "Waiting for region selection with mouse...")
-        (let ((filename
-               (concat "./"
+        (let ((directory "./images/")
+              (filename
+               (concat "./images/"
                        (file-name-nondirectory buffer-file-name)
                        "_"
                        (format-time-string "%Y%m%d_%H%M%S")
                        ".png")))
+
+          ;; Check if the directory exists, and create it if not
+          (unless (file-exists-p directory)
+            (make-directory directory))
+
           (if (executable-find org-ros-primary-screencapture)
-	      (call-process org-ros-primary-screencapture nil nil nil org-ros-primary-screencapture-switch filename)
-	    (call-process org-ros-secondary-screencapture nil nil nil org-ros-secondary-screencapture-switch filename))
+              (call-process org-ros-primary-screencapture nil nil nil org-ros-primary-screencapture-switch filename)
+            (call-process org-ros-secondary-screencapture nil nil nil org-ros-secondary-screencapture-switch filename))
+
           (insert "[[" filename "]]")
           (org-display-inline-images t t))
         (message "File created and linked..."))
